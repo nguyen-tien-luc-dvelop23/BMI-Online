@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ Tính BMI và Gợi Ý Chế Độ Ăn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .navbar {
+            background: #4CAF50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        .nav-link:hover {
+            color: #e0e0e0 !important;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 800px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .form-label {
+            font-weight: 600;
+            color: #333;
+        }
+        .btn-primary {
+            background: #4CAF50;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(76,175,80,0.3);
+        }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            animation: slideIn 0.5s ease-in-out;
+            display: none;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .bmi-progress {
+            margin-top: 15px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            height: 20px;
+            position: relative;
+        }
+        .bmi-bar {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 1s ease;
+        }
+        .underweight { background: #ff9800; }
+        .normal { background: #4CAF50; }
+        .overweight { background: #ffeb3b; }
+        .obese { background: #f44336; }
+        .diet-suggestion {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+            background: #d4edda;
+            border-radius: 10px;
+            color: #155724;
+        }
+        .diet-suggestion ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .diet-suggestion li {
+            margin-bottom: 15px;
+            animation: listItemFade 0.5s ease forwards;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+        }
+        .diet-suggestion li img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+        @keyframes listItemFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .diet-suggestion li:nth-child(1) { animation-delay: 0.2s; }
+        .diet-suggestion li:nth-child(2) { animation-delay: 0.4s; }
+        .diet-suggestion li:nth-child(3) { animation-delay: 0.6s; }
+        .history-item {
+            background: #e9ecef;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .history-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: block;
+        }
+        .no-history {
+            color: #6c757d;
+            font-style: italic;
+        }
+        @keyframes confettiAnim {
+            0% { opacity: 1; transform: translateY(0) rotate(0); }
+            100% { opacity: 0; transform: translateY(100px) rotate(720deg); }
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+        }
+        .chat-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .chat-btn:hover {
+            transform: scale(1.1);
+            background: #0056b3;
+        }
+        .sidebar-ad, .footer-ad {
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .sidebar-ad img, .footer-ad img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        .sidebar-ad p, .footer-ad p {
+            margin: 10px 0 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .main-content {
+            flex: 1;
+            max-width: 800px;
+        }
+        .sidebar {
+            width: 250px;
+            margin-left: 20px;
+        }
+        @media (max-width: 991px) {
+            .sidebar {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html"><i class="fas fa-heartbeat me-2"></i>BMI Calculator</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="about.html">Tính BMI</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Index.html">Giới Thiệu BMI</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="d-flex flex-column flex-lg-row justify-content-center mt-4">
+        <div class="main-content">
+            <div class="container">
+                <h1><i class="fas fa-heartbeat me-2"></i>Công Cụ Tính BMI và Gợi Ý Chế Độ Ăn</h1>
+                <form id="bmiForm">
+                    <div class="mb-3">
+                        <label for="weight" class="form-label">Cân nặng (kg)</label>
+                        <input type="number" class="form-control" id="weight" required min="1" step="0.1">
+                        <span class="error" id="weightError"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="height" class="form-label">Chiều cao (cm)</label>
+                        <input type="number" class="form-control" id="height" required min="1" step="0.1">
+                        <span class="error" id="heightError"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Tuổi</label>
+                        <input type="number" class="form-control" id="age" required min="1" step="1">
+                        <span class="error" id="ageError"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">Giới tính</label>
+                        <select class="form-select" id="gender" required>
+                            <option value="">Chọn giới tính</option>
+                            <option value="male">Nam</option>
+                            <option value="female">Nữ</option>
+                        </select>
+                        <span class="error" id="genderError"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="activity" class="form-label">Mức độ hoạt động</label>
+                        <select class="form-select" id="activity" required>
+                            <option value="">Chọn mức độ</option>
+                            <option value="1.2">Ít vận động (ngồi văn phòng)</option>
+                            <option value="1.375">Nhẹ (tập 1-3 ngày/tuần)</option>
+                            <option value="1.55">Trung bình (tập 3-5 ngày/tuần)</option>
+                            <option value="1.725">Nặng (tập 6-7 ngày/tuần)</option>
+                            <option value="1.9">Siêu nặng (vận động viên)</option>
+                        </select>
+                        <span class="error" id="activityError"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="period" class="form-label">Chu kỳ theo dõi</label>
+                        <select class="form-select" id="period" required>
+                            <option value="week">Tuần</option>
+                            <option value="month">Tháng</option>
+                        </select>
+                        <span class="error" id="periodError"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-calculator me-2"></i>Tính Toán</button>
+                </form>
+                <div id="result" style="display: none;">
+                    <h2>Kết Quả</h2>
+                    <p>BMI của bạn: <span id="bmiValue"></span> - <span id="bmiCategory" class="bmi-category"></span></p>
+                    <div class="bmi-progress">
+                        <div id="bmiBar" class="bmi-bar"></div>
+                    </div>
+                    <p>BMR (Năng lượng cơ bản): <span id="bmrValue"></span> calo/ngày</p>
+                    <p>TDEE (Năng lượng hàng ngày): <span id="tdeeValue"></span> calo/ngày</p>
+                    <div class="diet-suggestion">
+                        <h3>Gợi Ý Chế Độ Ăn Chi Tiết</h3>
+                        <p>Dựa trên TDEE, bạn nên tiêu thụ khoảng <span id="calorieIntake"></span> calo/ngày để duy trì cân nặng. Để giảm cân, giảm 500 calo; để tăng cân, tăng 500 calo.</p>
+                        <h4>Chế Độ Ăn Gợi Ý (<span id="periodPlan"></span>):</h4>
+                        <ul id="dietList"></ul>
+                        <p><strong>Lưu ý:</strong> Đây chỉ là gợi ý chung. Hãy tham khảo bác sĩ hoặc chuyên gia dinh dưỡng để có kế hoạch cá nhân hóa. Bao gồm nhiều rau củ, protein nạc, carbs phức tạp, và uống đủ nước (2-3 lít/ngày).</p>
+                    </div>
+                </div>
+                <div id="history" class="mt-5">
+                    <h3>Lịch Sử Tính Toán</h3>
+                    <div id="historyList"></div>
+                    <button id="clearHistory" class="btn btn-danger mt-3"><i class="fas fa-trash me-2"></i>Xóa Lịch Sử</button>
+                </div>
+            </div>
+            <div class="footer-ad mt-4">
+                <img src="https://medlatec.vn/media/24658/file/Ch%e1%bb%89-s%e1%bb%91-BMI-4+(3).png" alt="Quảng cáo">
+                <p>Khám phá  sức khỏe!</p>
+            </div>
+        </div>
+        <div class="sidebar d-none d-lg-block">
+            <div class="sidebar-ad">
+                <img src="https://dongnaicdc.vn/UserFiles/Images/2021/Thang%208/dd_hop_ly_1.jpg" alt="Quảng cáo">
+                <p>Thực phẩm bổ sung giúp bạn đạt mục tiêu sức khỏe!</p>
+            </div>
+            <div class="sidebar-ad">
+                <img src="https://media-cdn-v2.laodong.vn/storage/newsportal/2024/11/5/1417625/Thuc-Pham-Chuc-Nang-.jpg" alt="Quảng cáo">
+                <p>Tham gia phòng gym để cải thiện vóc dáng!</p>
+            </div>
+        </div>
+    </div>
+    <div class="chat-btn" title="Chat với Admin">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadHistory();
+
+            $('#bmiForm').on('submit', function(e) {
+                e.preventDefault();
+                let isValid = true;
+
+                isValid &= validateInput('weight', 'weightError', 1, 'Cân nặng phải lớn hơn 0 kg.');
+                isValid &= validateInput('height', 'heightError', 1, 'Chiều cao phải lớn hơn 0 cm.');
+                isValid &= validateInput('age', 'ageError', 1, 'Tuổi phải lớn hơn 0.');
+                isValid &= validateSelect('gender', 'genderError', 'Vui lòng chọn giới tính.');
+                isValid &= validateSelect('activity', 'activityError', 'Vui lòng chọn mức độ hoạt động.');
+                isValid &= validateSelect('period', 'periodError', 'Vui lòng chọn chu kỳ theo dõi.');
+
+                if (isValid) {
+                    calculateBMI();
+                    confetti();
+                } else {
+                    console.log('Validation failed. Check input values:', {
+                        weight: $('#weight').val(),
+                        height: $('#height').val(),
+                        age: $('#age').val(),
+                        gender: $('#gender').val(),
+                        activity: $('#activity').val(),
+                        period: $('#period').val()
+                    });
+                }
+            });
+
+            $('#clearHistory').on('click', function() {
+                localStorage.removeItem('bmiHistory');
+                loadHistory();
+            });
+
+            $('.chat-btn').on('click', function() {
+                alert('Tính năng chat với admin đang được phát triển. Vui lòng liên hệ qua email: support@bmiapp.com');
+            });
+
+            function validateInput(id, errorId, minValue, message) {
+                const input = $('#' + id);
+                const error = $('#' + errorId);
+                const value = parseFloat(input.val());
+                if (!input.val() || isNaN(value) || value < minValue) {
+                    error.text(message);
+                    return false;
+                }
+                error.text('');
+                return true;
+            }
+
+            function validateSelect(id, errorId, message) {
+                const select = $('#' + id);
+                const error = $('#' + errorId);
+                if (!select.val()) {
+                    error.text(message);
+                    return false;
+                }
+                error.text('');
+                return true;
+            }
+
+            function calculateBMI() {
+                const weight = parseFloat($('#weight').val());
+                const heightCm = parseFloat($('#height').val());
+                const heightM = heightCm / 100;
+                const age = parseInt($('#age').val());
+                const gender = $('#gender').val();
+                const activityLevel = parseFloat($('#activity').val());
+                const period = $('#period').val();
+
+                const bmi = (weight / (heightM * heightM)).toFixed(2);
+
+                let category = '', barClass = '', barWidth = 0;
+                if (bmi < 18.5) {
+                    category = 'Thiếu cân';
+                    barClass = 'underweight';
+                    barWidth = (bmi / 18.5) * 25;
+                } else if (bmi < 24.9) {
+                    category = 'Bình thường';
+                    barClass = 'normal';
+                    barWidth = 25 + ((bmi - 18.5) / (24.9 - 18.5)) * 25;
+                } else if (bmi < 29.9) {
+                    category = 'Thừa cân';
+                    barClass = 'overweight';
+                    barWidth = 50 + ((bmi - 24.9) / (29.9 - 24.9)) * 25;
+                } else {
+                    category = 'Béo phì';
+                    barClass = 'obese';
+                    barWidth = 75 + Math.min((bmi - 29.9) / 10, 1) * 25;
+                }
+
+                let bmr = 0;
+                if (gender === 'male') {
+                    bmr = 88.362 + (13.397 * weight) + (4.799 * heightCm) - (5.677 * age);
+                } else {
+                    bmr = 447.593 + (9.247 * weight) + (3.098 * heightCm) - (4.330 * age);
+                }
+                bmr = bmr.toFixed(0);
+
+                const tdee = (bmr * activityLevel).toFixed(0);
+                const calorieIntake = tdee;
+
+                $('#bmiValue').text(bmi);
+                $('#bmiCategory').text(category);
+                $('#bmrValue').text(bmr);
+                $('#tdeeValue').text(tdee);
+                $('#calorieIntake').text(calorieIntake);
+                $('#periodPlan').text(period === 'week' ? 'Theo Tuần' : 'Theo Tháng');
+
+                $('#bmiBar').removeClass().addClass('bmi-bar ' + barClass).css('width', barWidth + '%');
+
+                let suggestions = [];
+                const imageUrls = {
+                    underweight: [
+                        'https://images.unsplash.com/photo-1543353071-873f17a7a088?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80',
+                        'https://images.unsplash.com/photo-1547496502-affa22d388ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80',
+                        'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80'
+                    ],
+                    normal: [
+                        'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80',
+                        'https://images.unsplash.com/photo-1543353071-873f17a7a088?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80',
+                        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80'
+                    ],
+                    overweight: [
+                        'https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80',
+                        'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80',
+                        'https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80'
+                    ],
+                    obese: [
+                        'https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80',
+                        'https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80',
+                        'https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80'
+                    ]
+                };
+
+                if (bmi < 18.5) {
+                    suggestions = period === 'week' ? [
+                        { text: 'Tuần 1: Yoghurt với trái cây và hạt (500 calo) - Tăng protein và chất béo lành mạnh.', img: imageUrls.underweight[0] },
+                        { text: 'Tuần 2: Cơm gà nướng với khoai lang (700 calo) - Thêm carbs phức tạp.', img: imageUrls.underweight[1] },
+                        { text: 'Tuần 3-4: Cá hồi nướng, sinh tố chuối (800 calo) - Tăng calo dần dần.', img: imageUrls.underweight[2] }
+                    ] : [
+                        { text: 'Tháng 1: Bữa sáng giàu protein như trứng và bơ (600 calo) - Tăng cơ.', img: imageUrls.underweight[0] },
+                        { text: 'Tháng 2: Bữa trưa với thịt nạc và gạo lứt (800 calo) - Bổ sung năng lượng.', img: imageUrls.underweight[1] },
+                        { text: 'Tháng 3: Bữa tối với cá và salad (700 calo) - Tăng chất béo lành mạnh.', img: imageUrls.underweight[2] }
+                    ];
+                    suggestions.push({ text: `Tổng: Khoảng ${parseInt(calorieIntake) + 500} calo/ngày để tăng cân.`, img: null });
+                } else if (bmi < 24.9) {
+                    suggestions = period === 'week' ? [
+                        { text: 'Tuần 1: Trứng luộc, bánh mì nguyên cám (400 calo) - Cân bằng dinh dưỡng.', img: imageUrls.normal[0] },
+                        { text: 'Tuần 2: Salad gà với quinoa (600 calo) - Rau củ chiếm 50% khẩu phần.', img: imageUrls.normal[1] },
+                        { text: 'Tuần 3-4: Thịt nạc xào rau (500 calo) - Duy trì năng lượng.', img: imageUrls.normal[2] }
+                    ] : [
+                        { text: 'Tháng 1: Bữa sáng với yến mạch và trái cây (400 calo) - Giữ ổn định.', img: imageUrls.normal[0] },
+                        { text: 'Tháng 2: Bữa trưa với cá hấp và rau (500 calo) - Protein nạc.', img: imageUrls.normal[1] },
+                        { text: 'Tháng 3: Bữa tối với đậu phụ và salad (400 calo) - Cân bằng calo.', img: imageUrls.normal[2] }
+                    ];
+                    suggestions.push({ text: `Tổng: Khoảng ${calorieIntake} calo/ngày để duy trì.`, img: null });
+                } else if (bmi < 29.9) {
+                    suggestions = period === 'week' ? [
+                        { text: 'Tuần 1: Sinh tố rau củ với protein shake (300 calo) - Giảm carbs đơn.', img: imageUrls.overweight[0] },
+                        { text: 'Tuần 2: Cá hấp với salad (500 calo) - Tăng protein nạc.', img: imageUrls.overweight[1] },
+                        { text: 'Tuần 3-4: Rau củ luộc, đậu phụ (400 calo) - Ăn sớm trước 7h.', img: imageUrls.overweight[2] }
+                    ] : [
+                        { text: 'Tháng 1: Soup rau với gà nướng (400 calo) - Giảm khẩu phần.', img: imageUrls.overweight[0] },
+                        { text: 'Tháng 2: Salad lớn với vinegar dressing (300 calo) - Thấp calo.', img: imageUrls.overweight[1] },
+                        { text: 'Tháng 3: Rau củ luộc với cá (400 calo) - Tập trung vào fiber.', img: imageUrls.overweight[2] }
+                    ];
+                    suggestions.push({ text: `Tổng: Khoảng ${parseInt(calorieIntake) - 500} calo/ngày để giảm cân.`, img: null });
+                } else {
+                    suggestions = period === 'week' ? [
+                        { text: 'Tuần 1: Oatmeal với trái cây ít đường (300 calo) - Fiber cao.', img: imageUrls.obese[0] },
+                        { text: 'Tuần 2: Soup rau với gà (400 calo) - Giảm khẩu phần.', img: imageUrls.obese[1] },
+                        { text: 'Tuần 3-4: Salad lớn với ít dressing (300 calo) - Kiểm soát calo.', img: imageUrls.obese[2] }
+                    ] : [
+                        { text: 'Tháng 1: Bữa sáng với yến mạch (300 calo) - Bắt đầu ngày nhẹ.', img: imageUrls.obese[0] },
+                        { text: 'Tháng 2: Bữa trưa với soup rau (400 calo) - Giảm mỡ.', img: imageUrls.obese[1] },
+                        { text: 'Tháng 3: Bữa tối với rau luộc (300 calo) - Tăng cường tập luyện.', img: imageUrls.obese[2] }
+                    ];
+                    suggestions.push({ text: `Tổng: Khoảng ${parseInt(calorieIntake) - 500} calo/ngày, kết hợp tập luyện.`, img: null });
+                }
+
+                $('#dietList').empty();
+                suggestions.forEach(suggestion => {
+                    const li = $('<li>').text(suggestion.text);
+                    if (suggestion.img) {
+                        li.prepend($('<img>').attr('src', suggestion.img).attr('alt', 'Hình minh họa món ăn'));
+                    }
+                    li.appendTo('#dietList');
+                });
+
+                $('#result').css('display', 'block').fadeIn(1000);
+                $('#result')[0].scrollIntoView({ behavior: 'smooth' });
+
+                saveHistory({
+                    date: new Date().toLocaleString('vi-VN'),
+                    bmi,
+                    bmr,
+                    tdee,
+                    category,
+                    calorieIntake,
+                    suggestions: suggestions.map(s => s.text),
+                    period
+                });
+            }
+
+            function saveHistory(entry) {
+                try {
+                    let history = JSON.parse(localStorage.getItem('bmiHistory')) || [];
+                    history.push(entry);
+                    localStorage.setItem('bmiHistory', JSON.stringify(history));
+                    loadHistory();
+                } catch (e) {
+                    console.error('Error saving history:', e);
+                }
+            }
+
+            function loadHistory() {
+                try {
+                    let history = JSON.parse(localStorage.getItem('bmiHistory')) || [];
+                    $('#historyList').empty();
+                    if (history.length === 0) {
+                        $('#historyList').html('<p class="no-history">Chưa có lịch sử tính toán.</p>');
+                    } else {
+                        history.forEach((item, index) => {
+                            $('<div>').addClass('history-item').html(`
+                                <p><strong>Ngày: ${item.date}</strong></p>
+                                <p>BMI: ${item.bmi} (${item.category})</p>
+                                <p>BMR: ${item.bmr} calo</p>
+                                <p>TDEE: ${item.tdee} calo</p>
+                                <p>Gợi ý (${item.period === 'week' ? 'Theo Tuần' : 'Theo Tháng'}): ${item.suggestions.join('<br>')}</p>
+                            `).appendTo('#historyList');
+                        });
+                    }
+                } catch (e) {
+                    console.error('Error loading history:', e);
+                    $('#historyList').html('<p class="no-history">Lỗi khi tải lịch sử. Vui lòng thử lại.</p>');
+                }
+            }
+
+            $('#weight, #height').on('input', function() {
+                const weight = parseFloat($('#weight').val());
+                const heightCm = parseFloat($('#height').val());
+                if (weight && heightCm && !isNaN(weight) && !isNaN(heightCm)) {
+                    const heightM = heightCm / 100;
+                    const previewBmi = (weight / (heightM * heightM)).toFixed(2);
+                    $('#bmiValue').text(previewBmi);
+                }
+            });
+
+            $('input, select').on('focus', function() {
+                $(this).css('transform', 'scale(1.02)');
+            }).on('blur', function() {
+                $(this).css('transform', 'scale(1)');
+            });
+
+            function confetti() {
+                for (let i = 0; i < 50; i++) {
+                    const conf = $('<div>').addClass('confetti').css({
+                        background: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                        top: `${Math.random() * 100}%`,
+                        left: `${Math.random() * 100}%`,
+                        opacity: 0
+                    });
+                    $('body').append(conf);
+                    conf.animate({ opacity: 1, top: '+=100', rotate: '720deg' }, {
+                        duration: 2000,
+                        step: function(now, fx) {
+                            if (fx.prop === 'rotate') {
+                                $(this).css('transform', `translateY(${fx.pos * 100}px) rotate(${now}deg)`);
+                            }
+                        },
+                        complete: function() { $(this).remove(); }
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
